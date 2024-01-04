@@ -1,0 +1,14 @@
+[
+  {
+    "id": "VSR_LISTING_SEARCH_GLOBAL",
+    "module": "VSR",
+    "page": "LISTING",
+    "section": "SEARCH",
+    "type": "GLOBAL",
+    "lang": "en-us",
+    "message": {
+      "display": "",
+      "description": ""
+    }
+  }
+]
