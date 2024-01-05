@@ -1,5 +1,7 @@
 package com.shivam.learn.reflection;
 
+import lombok.Data;
+
 /**
  * @author sksingh created on 25/11/23
  */
@@ -44,6 +46,7 @@ public class ClassTest {
         int getNumberOfCorners();
     }
 
+    @Data
     private static class Square implements Drawable {
 
         @Override
