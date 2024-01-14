@@ -2,6 +2,8 @@ package com.shivam.learn.reflection.annotation;
 
 import com.shivam.learn.reflection.annotation.annotations.InitializerClass;
 import com.shivam.learn.reflection.annotation.annotations.InitializerMethod;
+import com.shivam.learn.reflection.annotation.annotations.RetryOperation;
+import com.shivam.learn.reflection.annotation.annotations.ScanPackages;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -12,20 +14,34 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 /**
  * @author sksingh created on 14/01/24
  */
+@ScanPackages({"com.shivam.learn.reflection.annotation.configs"})
 public class Main {
 
     public static void main(String[] args) throws Throwable {
 
-        initialize("com.shivam.learn.reflection.annotation.configs");
+        // initialize("com.shivam.learn.reflection.annotation.configs");
+        initialize();
+    }
+
+    private static void initialize() throws Throwable {
+        ScanPackages scanPackages = Main.class.getAnnotation(ScanPackages.class);
+
+        if (isNull(scanPackages) || scanPackages.value().length == 0) {
+            return;
+        }
+        initialize(scanPackages.value());
     }
 
     private static void initialize(
             String... packages
-    ) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, IOException, ClassNotFoundException {
+    ) throws Throwable {
         List<Class<?>> classes = getAllClasses(packages);
 
         for (Class<?> clazz : classes) {
@@ -39,7 +55,33 @@ public class Main {
 
             for (Method method : methods) {
                 // Assuming all the methods don't have any arguments
-                method.invoke(instance);
+                callInitializingMethod(instance, method);
+            }
+        }
+    }
+
+    private static void callInitializingMethod(Object instance, Method method) throws Throwable {
+        RetryOperation retryOperation = method.getAnnotation(RetryOperation.class);
+
+        int retries = retryOperation == null ? 0 : retryOperation.numberOfRetries();
+
+        while (true) {
+            try {
+                method.invoke(instance, method);
+                break;
+            } catch (InvocationTargetException e) {
+                Throwable targetException = e.getTargetException();
+
+                if (retries > 0 && Set.of(retryOperation.retryExceptions()).contains(targetException.getClass())) {
+                    retries--;
+
+                    System.out.println("Retrying...");
+                    Thread.sleep(retryOperation.durationBetweenRetriesMs());
+                } else if (retryOperation != null) {
+                    throw new Exception(retryOperation.failureMessage(), targetException);
+                } else {
+                    throw targetException;
+                }
             }
         }
     }
