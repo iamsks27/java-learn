@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Test {
 
@@ -186,13 +187,13 @@ public class Test {
         //        System.out.println(collect);
 
 
-//        String prefixOne = "My-Random-UUID-PrefixO";
-//        String prefixTwo = "My-Random-UUID-PrefixT";
-//
-//        System.out.println(
-//                UUID.nameUUIDFromBytes(prefixOne.getBytes()).equals(
-//                        UUID.nameUUIDFromBytes(prefixTwo.getBytes()))
-//        );
+        //        String prefixOne = "My-Random-UUID-PrefixO";
+        //        String prefixTwo = "My-Random-UUID-PrefixT";
+        //
+        //        System.out.println(
+        //                UUID.nameUUIDFromBytes(prefixOne.getBytes()).equals(
+        //                        UUID.nameUUIDFromBytes(prefixTwo.getBytes()))
+        //        );
 
 
         //        for (int i = 0; i < 10_000_000; i++) {
@@ -205,6 +206,19 @@ public class Test {
         //        }
         //
         //        System.out.printf("All the uuids generated using prefix %s are matching", prefix);
+
+//        Optional<Stream<Integer>> intStream = Optional.of(Stream.of(1, 2, 3, 4, 5));
+//
+//        int sum = 0;
+//
+//        intStream.ifPresent((numbers) -> numbers.reduce(sum, Integer::sum));
+//
+//        System.out.println(sum);
+//
+//        List<Integer> list = new ArrayList<>();
+//        intStream.ifPresent(numbers -> list.addAll(numbers.map(i -> i * 2).toList()));
+//
+//        System.out.println(list);
     }
 
     private static String formattedZipCode(String zipCode) {
