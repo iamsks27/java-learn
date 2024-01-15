@@ -21,7 +21,7 @@ import static java.util.Objects.isNull;
 /**
  * @author sksingh created on 14/01/24
  */
-@ScanPackages({"com.shivam.learn.reflection.annotation.configs"})
+@ScanPackages({"annotation.configs"})
 public class Main {
 
     public static void main(String[] args) throws Throwable {
