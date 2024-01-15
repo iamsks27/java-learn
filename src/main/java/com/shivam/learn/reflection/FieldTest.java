@@ -13,7 +13,7 @@ public class FieldTest {
 
         Movie movie = new Movie(
                 "Lord of the rings",
-                2001,
+                2002,
                 true,
                 Category.ADVENTURE,
                 12.99
