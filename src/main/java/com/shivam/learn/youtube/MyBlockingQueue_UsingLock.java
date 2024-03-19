@@ -39,7 +39,7 @@ public class MyBlockingQueue_UsingLock<E> {
     public E take() {
         lock.lock();
         try {
-            while (queue.size() == 0) {
+            while (queue.isEmpty()) {
                 notEmpty.await();
             }
             E item = queue.remove();

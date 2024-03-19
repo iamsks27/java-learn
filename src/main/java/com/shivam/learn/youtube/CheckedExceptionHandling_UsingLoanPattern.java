@@ -22,8 +22,9 @@ public class CheckedExceptionHandling_UsingLoanPattern {
         return withFile(fileName, file -> {
             byte[] buffer = new byte[4096];
             final ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.length);
-            int n = 0;
+            int n;
             while ((n = file.read(buffer)) > 0) {
+                // Write buffer into output byte array, reading from off to len from source byte array.
                 out.write(buffer, 0, n);
             }
             return out.toByteArray();
@@ -37,8 +38,10 @@ public class CheckedExceptionHandling_UsingLoanPattern {
     }
 
     static void copy(String src, String dst) throws IOException {
-        try (InputStream in = new FileInputStream(src); //
-             OutputStream out = new FileOutputStream(dst)) {
+        try (
+                InputStream in = new FileInputStream(src);
+                OutputStream out = new FileOutputStream(dst)
+        ) {
             byte[] buff = new byte[BUFFER_SIZE];
             int n;
             while ((n = in.read(buff)) >= 0) {

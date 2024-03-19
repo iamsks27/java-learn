@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Objects.nonNull;
 
 public class Test {
 
@@ -15,10 +18,15 @@ public class Test {
     public static final String FNI_DESC_SUFFIX = "</li></ul>";
     public static final String FNI_DESC_DELIMITER = "</li><li>";
     public static final String PHONE_NUMBER_REGEX = "^[1-9](\\d){9}$";
+    public static final String EMPTY = "";
 
     private static final Set<String> SUPPORTED_DOMAIN;
     private static final Set<String> SUPPORTED_DOMAINS;
     private static final Set<String> PROD_CLUSTER_TYPE;
+
+    private static final String SERVICES = """
+            aec-cp-dealer-details-ingestion,aec-cp-dealer-details-service,aec-cp-dealer-settings-ingestion,aec-cp-dealer-settings-service,aec-cp-integrations-service,aec-cp-pricing,aec-cp-discovery-api,aec-appointments-central-inbound-service,aec-appointments-central-service,aec-cp-appointments-outbound,aec-cp-audit-service,aec-cp-cms,aec-cp-discovery,aec-cp-discovery-jobs,aec-cp-honda-configurator,aec-cp-ims,aec-cp-ims-jobs,aec-cp-ims-outbound,aec-cp-inventory-inbound-service,aec-cp-inventory-ingestion-pipeline,aec-cp-jobs,aec-cp-lcs,aec-cp-myaccount-service,aec-cp-notification-dispatcher-service,aec-cp-oms,aec-cp-oms-inbound,aec-cp-oms-outbound,aec-cp-security-service,aec-cp-suggestion,aec-inventory-management-service
+            """;
 
     static {
         SUPPORTED_DOMAINS = new HashSet<>();
@@ -207,26 +215,50 @@ public class Test {
         //
         //        System.out.printf("All the uuids generated using prefix %s are matching", prefix);
 
-//        Optional<Stream<Integer>> intStream = Optional.of(Stream.of(1, 2, 3, 4, 5));
-//
-//        int sum = 0;
-//
-//        intStream.ifPresent((numbers) -> numbers.reduce(sum, Integer::sum));
-//
-//        System.out.println(sum);
-//
-//        List<Integer> list = new ArrayList<>();
-//        intStream.ifPresent(numbers -> list.addAll(numbers.map(i -> i * 2).toList()));
-//
-//        System.out.println(list);
+        //        Optional<Stream<Integer>> intStream = Optional.of(Stream.of(1, 2, 3, 4, 5));
+        //
+        //        int sum = 0;
+        //
+        //        intStream.ifPresent((numbers) -> numbers.reduce(sum, Integer::sum));
+        //
+        //        System.out.println(sum);
+        //
+        //        List<Integer> list = new ArrayList<>();
+        //        intStream.ifPresent(numbers -> list.addAll(numbers.map(i -> i * 2).toList()));
+        //
+        //        System.out.println(list);
+
+
+        //        String baseURL = "https://akamai-staging2.acura.com/build-price/ZDX?";
+        //        Map<String, String> values = Map.of("modelId", "ZDX", "year", "2024", "accessories", "a1,a2,a3");
+        //
+        //        System.out.println(generateLink(baseURL, values));
+
+        //        String services = Stream.of(SERVICES.split(","))
+        //                .map(s -> s.split("-"))
+        //                .map(s -> String.join("_", s))
+        //                .map(String::toUpperCase)
+        //                .map(s -> "'" + s + "'")
+        //                .collect(Collectors.joining(","));
+        //
+        //        System.out.println(services);
+
+        System.out.println(formattedZipCode("945201"));
+        System.out.println(formattedZipCode("09123"));
+    }
+
+    private static String generateLink(String baseUrl, Map<String, String> values) {
+        return values.entrySet().stream()
+                .filter(entry -> nonNull(entry.getValue()))
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&", baseUrl, ""));
     }
 
     private static String formattedZipCode(String zipCode) {
-        String formattedZipCode = zipCode;
-        if (zipCode != null && !zipCode.isEmpty() && zipCode.length() > 5) {
-            formattedZipCode = zipCode.substring(0, 5);
-        }
-        return formattedZipCode;
+        return Optional.ofNullable(zipCode)
+                .filter(zip -> zip.length() > 5)
+                .map(zip -> zip.substring(0, 5))
+                .orElse(zipCode);
     }
 
     private static String isGodModeEnabled(String origin, String clusterTYpe) {
@@ -256,18 +288,20 @@ public class Test {
     }
 
     private static String getFormattedDescription(List<String> descriptions) {
-        String formattedDescription = "";
-        if (Objects.nonNull(descriptions)) {
-            formattedDescription = FNI_DESC_PREFIX + String.join(FNI_DESC_DELIMITER, descriptions) + FNI_DESC_SUFFIX;
-        }
-        return formattedDescription;
+        return Optional.ofNullable(descriptions)
+                .map(dsc -> FNI_DESC_PREFIX + String.join(FNI_DESC_DELIMITER, dsc) + FNI_DESC_SUFFIX)
+                .orElse(EMPTY);
     }
 
     private static String getOfferType(String name) {
-        final String[] names = name.split("\\s+");
-        if (names.length > 0) {
-            return Arrays.stream(names).map(String::toLowerCase).collect(Collectors.joining("_"));
-        }
-        return "";
+        return Optional.ofNullable(name)
+                .map(n -> n.split("\\s+"))
+                .filter(ns -> ns.length > 0)
+                .map(ns ->
+                             Stream.of(ns)
+                                     .map(String::toLowerCase)
+                                     .collect(Collectors.joining("_"))
+                )
+                .orElse(EMPTY);
     }
 }
